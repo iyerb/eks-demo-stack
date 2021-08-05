@@ -1,0 +1,223 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CFN Template using SSH KeyPair
+Parameters:
+  # A Parameter named KeyName is required in order to receive the name of the KeyPair when deploying the challenge.
+  # The Parameter must be named KeyName to conform to AWS Jam convention. Any other name will not work.
+  KeyName:
+    Type: String
+    Description: Name for the keypair used to SSH into EC2 instances
+    # A default of "lab-key-pair" is required here to conform to AWS Jam convention. Any other default will not work.
+    Default: lab-key-pair
+Resources:
+  app2conVPC59B18454:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: App2ContainerStack/app2conVPC
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conVPC/Resource
+  app2conVPCapplicationSubnet1Subnet99FE0F1F:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      VpcId: 
+        Ref: app2conVPC59B18454
+      AvailabilityZone: us-east-1a
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: 'aws-cdk:subnet-name'
+          Value: application
+        - Key: 'aws-cdk:subnet-type'
+          Value: Public
+        - Key: Name
+          Value: App2ContainerStack/app2conVPC/applicationSubnet1
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conVPC/applicationSubnet1/Subnet
+  app2conVPCapplicationSubnet1RouteTable902AC8A9:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: 
+        Ref: app2conVPC59B18454
+      Tags:
+        - Key: Name
+          Value: App2ContainerStack/app2conVPC/applicationSubnet1
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conVPC/applicationSubnet1/RouteTable
+  app2conVPCapplicationSubnet1RouteTableAssociation3EEE4D9D:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: 
+        Ref: app2conVPCapplicationSubnet1RouteTable902AC8A9
+      SubnetId: 
+        Ref: app2conVPCapplicationSubnet1Subnet99FE0F1F
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conVPC/applicationSubnet1/RouteTableAssociation
+  app2conVPCapplicationSubnet1DefaultRoute260A6DA8:
+    Type: 'AWS::EC2::Route'
+    Properties:
+      RouteTableId: 
+        Ref: app2conVPCapplicationSubnet1RouteTable902AC8A9
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: 
+        Ref: app2conVPCIGWF04FB51A
+    DependsOn:
+      - app2conVPCVPCGW41AFE2C8
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conVPC/applicationSubnet1/DefaultRoute
+  app2conVPCIGWF04FB51A:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Name
+          Value: App2ContainerStack/app2conVPC
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conVPC/IGW
+  app2conVPCVPCGW41AFE2C8:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: 
+        Ref: app2conVPC59B18454
+      InternetGatewayId: 
+        Ref: app2conVPCIGWF04FB51A
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conVPC/VPCGW
+  app2conSG78DB68E8:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: App2ContainerStack/app2conSG
+      GroupName: app2conSG
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: '-1'
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: allow ssh access
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+        - CidrIp: 0.0.0.0/0
+          Description: allow http access
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          Description: allow https access
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+        - CidrIp: 0.0.0.0/0
+          Description: allow requests on port 8080
+          FromPort: 8080
+          IpProtocol: tcp
+          ToPort: 8080
+      VpcId: 
+        Ref: app2conVPC59B18454
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conSG/Resource
+  app2conUser9E64D4E7:
+    Type: 'AWS::IAM::User'
+    Properties:
+      Groups:
+        - Ref: AdminsGroup06B46644
+      UserName: app2conUser
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/app2conUser/Resource
+  AdminsGroup06B46644:
+    Type: 'AWS::IAM::Group'
+    Properties:
+      GroupName: AdminsGroup
+      ManagedPolicyArns:
+        - Join:
+          - ''
+          - - 'arn:'
+            - Ref: 'AWS::Partition'
+            - ':iam::aws:policy/AdministratorAccess'
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/AdminsGroup/Resource
+  myaccesskey:
+    Type: AWS::IAM::AccessKey
+    DependsOn: app2conUser9E64D4E7
+    Properties:
+      UserName: app2conUser
+  SSMInstanceProfile194B1931:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - Join:
+          - ''
+          - - 'arn:'
+            - Ref: 'AWS::Partition'
+            - ':iam::aws:policy/AmazonSSMManagedInstanceCore'
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/SSMInstanceProfile/Resource
+  TomcatServerMachineInstanceProfile15CA4A33:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Roles:
+        - Ref: SSMInstanceProfile194B1931
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/Tomcat Server Machine/InstanceProfile
+  TomcatServerMachineEE71F66E:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      AvailabilityZone: us-east-1a
+      IamInstanceProfile: 
+        Ref: TomcatServerMachineInstanceProfile15CA4A33
+      ImageId: ami-0450736a74d96fb5d
+      InstanceType: t2.micro
+      KeyName: 
+        Ref: KeyName
+      SecurityGroupIds:
+        - GetAtt:
+          - app2conSG78DB68E8
+          - GroupId
+      SubnetId: 
+        Ref: app2conVPCapplicationSubnet1Subnet99FE0F1F
+      Tags:
+        - Key: Name
+          Value: App2ContainerStack/Tomcat Server Machine
+      UserData: 
+        Base64:
+          'Fn::Join':
+          - ''
+          - - ACCESS_KEY=
+            - !Ref myaccesskey
+            - '      '
+            - SECRET_KEY=
+            - !GetAtt
+              - myaccesskey
+              - SecretAccessKey
+    DependsOn:
+      - SSMInstanceProfile194B1931
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/Tomcat Server Machine/Resource
+  CDKMetadata:
+    Type: 'AWS::CDK::Metadata'
+    Properties:
+      Modules: >-
+        aws-cdk=1.66.0,@aws-cdk/assets=1.67.0,@aws-cdk/aws-cloudwatch=1.67.0,@aws-cdk/aws-ec2=1.67.0,@aws-cdk/aws-events=1.67.0,@aws-cdk/aws-iam=1.67.0,@aws-cdk/aws-kms=1.67.0,@aws-cdk/aws-logs=1.67.0,@aws-cdk/aws-s3=1.67.0,@aws-cdk/aws-s3-assets=1.67.0,@aws-cdk/aws-ssm=1.67.0,@aws-cdk/cloud-assembly-schema=1.67.0,@aws-cdk/core=1.67.0,@aws-cdk/cx-api=1.67.0,@aws-cdk/region-info=1.67.0,jsii-runtime=Java/14.0.1
+    Metadata:
+      'aws:cdk:path': App2ContainerStack/CDKMetadata/Default
+Outputs:
+  # An Output named KeyName is required in order to provide the KeyPair to the team with the correct name.
+  # The Output must be named KeyName to conform to AWS Jam convention. Any other name will not work.
+  KeyName:
+    Description: The SSH KeyPair Name
+    Value: 
+      Ref: KeyName
+  AnswerKeyTask1:
+    Description: Answer key for Task 1
+    Value: completed

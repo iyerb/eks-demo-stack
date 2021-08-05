@@ -1,0 +1,345 @@
+Parameters:
+  KeyName:
+    Type: String
+    Default: lab-key-pair
+  SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+Resources:
+  jamcdkvpc6DE69A7D:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: JamStack/jam-cdk-vpc
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/Resource
+  jamcdkvpcpublicSubnet1SubnetEFC8C634:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.0.0/24
+      VpcId:
+        Ref: jamcdkvpc6DE69A7D
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: JamStack/jam-cdk-vpc/publicSubnet1
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet1/Subnet
+  jamcdkvpcpublicSubnet1RouteTableBEF113DC:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: jamcdkvpc6DE69A7D
+      Tags:
+        - Key: Name
+          Value: JamStack/jam-cdk-vpc/publicSubnet1
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet1/RouteTable
+  jamcdkvpcpublicSubnet1RouteTableAssociation0334C2FF:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: jamcdkvpcpublicSubnet1RouteTableBEF113DC
+      SubnetId:
+        Ref: jamcdkvpcpublicSubnet1SubnetEFC8C634
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet1/RouteTableAssociation
+  jamcdkvpcpublicSubnet1DefaultRoute7F464D01:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: jamcdkvpcpublicSubnet1RouteTableBEF113DC
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: jamcdkvpcIGWFFA4A0C7
+    DependsOn:
+      - jamcdkvpcVPCGW9CE081DE
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet1/DefaultRoute
+  jamcdkvpcpublicSubnet1EIPBABF86C3:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: JamStack/jam-cdk-vpc/publicSubnet1
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet1/EIP
+  jamcdkvpcpublicSubnet1NATGatewayAB10C20D:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      SubnetId:
+        Ref: jamcdkvpcpublicSubnet1SubnetEFC8C634
+      AllocationId:
+        Fn::GetAtt:
+          - jamcdkvpcpublicSubnet1EIPBABF86C3
+          - AllocationId
+      Tags:
+        - Key: Name
+          Value: JamStack/jam-cdk-vpc/publicSubnet1
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet1/NATGateway
+  jamcdkvpcpublicSubnet2Subnet0BD21B87:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.1.0/24
+      VpcId:
+        Ref: jamcdkvpc6DE69A7D
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: JamStack/jam-cdk-vpc/publicSubnet2
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet2/Subnet
+  jamcdkvpcpublicSubnet2RouteTable6F508636:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: jamcdkvpc6DE69A7D
+      Tags:
+        - Key: Name
+          Value: JamStack/jam-cdk-vpc/publicSubnet2
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet2/RouteTable
+  jamcdkvpcpublicSubnet2RouteTableAssociation2DD4F2A8:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: jamcdkvpcpublicSubnet2RouteTable6F508636
+      SubnetId:
+        Ref: jamcdkvpcpublicSubnet2Subnet0BD21B87
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet2/RouteTableAssociation
+  jamcdkvpcpublicSubnet2DefaultRouteACF356FC:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: jamcdkvpcpublicSubnet2RouteTable6F508636
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: jamcdkvpcIGWFFA4A0C7
+    DependsOn:
+      - jamcdkvpcVPCGW9CE081DE
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/publicSubnet2/DefaultRoute
+  jamcdkvpcIGWFFA4A0C7:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: JamStack/jam-cdk-vpc
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/IGW
+  jamcdkvpcVPCGW9CE081DE:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: jamcdkvpc6DE69A7D
+      InternetGatewayId:
+        Ref: jamcdkvpcIGWFFA4A0C7
+    Metadata:
+      aws:cdk:path: JamStack/jam-cdk-vpc/VPCGW
+  jamsg8DD7CA55:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: JamStack/jam-sg
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow ssh from anywhere
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+        - CidrIp: 0.0.0.0/0
+          Description: allow HTTP traffic from anywhere
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          Description: allow HTTPS traffic from anywhere
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      VpcId:
+        Ref: jamcdkvpc6DE69A7D
+    Metadata:
+      aws:cdk:path: JamStack/jam-sg/Resource
+  webserverroleDB0308B6:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                Fn::Join:
+                  - ""
+                  - - ec2.
+                    - Ref: AWS::URLSuffix
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AdministratorAccess
+    Metadata:
+      aws:cdk:path: JamStack/webserver-role/Resource
+  ec2instanceInstanceProfile9BCE9015:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - Ref: webserverroleDB0308B6
+    Metadata:
+      aws:cdk:path: JamStack/ec2-instance/InstanceProfile
+  ec2instance42082E81:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
+      IamInstanceProfile:
+        Ref: ec2instanceInstanceProfile9BCE9015
+      ImageId:
+        Ref: SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter
+      InstanceType: t2.micro
+      KeyName: 
+        Ref: KeyName
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - jamsg8DD7CA55
+            - GroupId
+      SubnetId:
+        Ref: jamcdkvpcpublicSubnet1SubnetEFC8C634
+      Tags:
+        - Key: Name
+          Value: JamStack/ec2-instance
+      UserData:
+        Fn::Base64: |-
+          #!/bin/bash
+          #!/bin/bash
+          yum update -y
+          sudo su
+
+          amazon-linux-extras install -y nginx1
+          systemctl start nginx
+          systemctl enable nginx
+
+          chmod 2775 /usr/share/nginx/html
+          find /usr/share/nginx/html -type d -exec chmod 2775 {} \;
+          find /usr/share/nginx/html -type f -exec chmod 0664 {} \;
+
+          echo "<h1>It worked</h1>" > /usr/share/nginx/html/index.html
+    DependsOn:
+      - webserverroleDB0308B6
+    Metadata:
+      aws:cdk:path: JamStack/ec2-instance/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAAE1VQy27DIBD8ltwJqROp50ZWFfnSIrvKfY03KokNFiyJIsS/F+K6Tk8zO8M+hoIXxSt/Wb3Bza1ld9kEaSzy0BDICytPWoCFAQktq9EZbyVm9dPT6ImVRjuyXlLWnv1kdIqU0ZHlwQHllofjKLN3FCUTvu2VbHyr8dG7sNp4wi9oe1z0Rds7Z6SCPPnvcSbvlcjwAXQAwhvcc1XpdHZqf5LS7t9qTynh94CaWIPSW0X3gzV+fGz9J1QpI+gp18wjUzDwUJvpzBlnW1hzUj3GGJk2HfKz21yLLU8/vVudnVJr6zWpAXk94Q/NvjahhgEAAA==
+    Metadata:
+      aws:cdk:path: JamStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Outputs:
+  KeyName:
+    Value: lab-key-pair
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - af-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+

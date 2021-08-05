@@ -1,0 +1,23 @@
+{
+    "Parameters": [
+        {
+            "ParameterKey": "AssetParametersafe67465ec62603d27d77795221a45e68423c87495467b0265ecdadad80bb5e2ArtifactHash3CBE2F36",
+            "NoEcho": false,
+            "Description": "Artifact hash for asset \"afe67465ec62603d27d77795221a45e68423c87495467b0265ecdadad80bb5e2\""
+        },
+        {
+            "ParameterKey": "AssetParametersafe67465ec62603d27d77795221a45e68423c87495467b0265ecdadad80bb5e2S3VersionKeyC59C30A0",
+            "NoEcho": false,
+            "Description": "S3 key for asset version \"afe67465ec62603d27d77795221a45e68423c87495467b0265ecdadad80bb5e2\""
+        },
+        {
+            "ParameterKey": "AssetParametersafe67465ec62603d27d77795221a45e68423c87495467b0265ecdadad80bb5e2S3BucketA216A7EC",
+            "NoEcho": false,
+            "Description": "S3 bucket for asset \"afe67465ec62603d27d77795221a45e68423c87495467b0265ecdadad80bb5e2\""
+        }
+    ],
+    "Capabilities": [
+        "CAPABILITY_NAMED_IAM"
+    ],
+    "CapabilitiesReason": "The following resource(s) require capabilities: [AWS::IAM::ManagedPolicy]"
+}
