@@ -2,6 +2,12 @@ Parameters:
   KeyName:
     Type: String
     Default: lab-key-pair
+  AWSREGION:
+    Type: String
+    Default: us-west-2
+  AWSACCOUNT:
+    Type: String
+    Default: "053742292536"
   SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
@@ -228,8 +234,9 @@ Resources:
         Ref: ec2instanceInstanceProfile9BCE9015
       ImageId:
         Ref: SsmParameterValueawsserviceamiamazonlinuxlatestamzn2amihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter
-      InstanceType: t2.micro
-      KeyName: KeyName
+      InstanceType: t2.large
+      KeyName: 
+        Ref: KeyName
       SecurityGroupIds:
         - Fn::GetAtt:
             - jamsg8DD7CA55
@@ -242,51 +249,29 @@ Resources:
       UserData:
         Fn::Base64: |-
           #!/bin/bash
-          #!/bin/bash
+          yum update -y
           yum update -y
           sudo su
-          #Connect to your Linux instance as ec2-user using SSH.
-          #Install node version manager (nvm) by typing the following at the command line.
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh
-          #Activate nvm by typing the following at the command line.
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
           . ~/.nvm/nvm.sh
-          #Use nvm to install the latest version of Node.js by typing the following at the command line.
-          nvm install node
-          #Test that Node.js is installed and running correctly by typing the following at the command line.
-          node -e "console.log('Running Node.js ' + process.version)"
-          #Install aws-cdk
+          nvm install
+          node -e "console.log("Running, Node.js " + process.version)"
           npm install -g aws-cdk
           npm install @aws-cdk/aws-eks@1.116.0
-          #check cdk version
           cdk --version
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          chmod +x kubectl
+          mkdir -p ~/.local/bin/kubectl
+          mv ./kubectl ~/.local/bin/kubectl
+          kubectl version
           sudo yum install git -y
-          #Check git version
           git version
-          #mkdir jam
-          mkdir eks-demo
+          mkdir jam
+          cd jam
+          git clone https://github.com/iyerb/eks-demo.git
           cd eks-demo
-          cdk init -l typescript
-          cd lib
-          vi eks-demo-stack.ts
-
-          cdk bootstrap aws://337828849457/ap-southeast-1
-
-          # ⏳  Bootstrapping environment aws://337828849457/ap-southeast-1...
-          #CDKToolkit: creating CloudFormation changeset...
-          # ✅  Environment aws://337828849457/ap-southeast-1 bootstrapped.
-
-           ✅  EksDemoStack
-
-          #Outputs:
-          EksDemoStack.ckdeksclusterConfigCommandE04DCF13 = aws eks update-kubeconfig --name ckdekscluster91BD07D9-b77a056c8b304c29894ed2409c09e062 --region ap-southeast-1 --ro
-          le-arn arn:aws:iam::337828849457:role/EksDemoStack-ckdeksclusterMastersRoleBE3D5109-4N9G1Z9I7KR4
-          EksDemoStack.ckdeksclusterGetTokenCommand5DD9E553 = aws eks get-token --cluster-name ckdekscluster91BD07D9-b77a056c8b304c29894ed2409c09e062 --region ap-southeast-1 --
-          role-arn arn:aws:iam::337828849457:role/EksDemoStack-ckdeksclusterMastersRoleBE3D5109-4N9G1Z9I7KR4
-
-
-          curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-
-          echo "<h1>It worked</h1>" > /usr/share/nginx/html/index.html
+          cdk bootstrap aws://053742292536/us-west-2
     DependsOn:
       - webserverroleDB0308B6
     Metadata:
