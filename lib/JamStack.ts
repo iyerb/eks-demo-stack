@@ -1,8 +1,10 @@
 import * as ec2 from '@aws-cdk/aws-ec2'
 import * as iam from '@aws-cdk/aws-iam'
 import * as cdk from '@aws-cdk/core'
-import { KeyPair } from 'cdk-ec2-key-pair';
+import * as eks from '@aws-cdk/aws-eks';
 import {readFileSync} from 'fs';
+import { CfnRefElement } from '@aws-cdk/core';
+import { KeyPair } from 'cdk-ec2-key-pair';
 
 const LAB_KEYPAIR_NM = 'lab-key-pair';
 export class JamStack extends cdk.Stack {
@@ -68,9 +70,9 @@ export class JamStack extends cdk.Stack {
             machineImage: new ec2.AmazonLinuxImage({
                 generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
             }),
-            keyName: keyname.default
-        });
-
+            keyName: 
+                "Ref: KeyName"
+        });       
          // 👇 load contents of script
         const userDataScript = readFileSync('./lib/user-data.sh', 'utf8');
         // 👇 add the User Data script to the Instance
